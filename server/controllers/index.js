@@ -8,7 +8,27 @@ module.exports = {
 
   users: {
     // Ditto as above
-    get: function (req, res) {},
+    get: function (req, res) {
+      models.users.get(function(err, users) {
+        if (err) {
+          res.writeHead(404, {
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "access-control-allow-headers": "content-type, accept",
+            "access-control-max-age": 10
+          });
+          res.end();
+        } else {
+          res.writeHead(200, {
+            "access-control-allow-origin": "*",
+            "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "access-control-allow-headers": "content-type, accept",
+            "access-control-max-age": 10
+          });
+          res.end(users);
+        }
+      })
+    },
     post: function (req, res) {}
   }
 };
