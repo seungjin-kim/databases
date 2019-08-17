@@ -3,72 +3,76 @@ var db = require('../db');
 module.exports = {
   messages: {
     get: function (callback) {
-      var queryString = "SELECT * FROM messages";
 
-      db.dbConnection.query(queryString, function(err, results) {
-        if (err) {
+
+      db.messages.sync()
+        .then(function () {
+          return db.messages.findAll({});
+        })
+        .then(function (messages) {
+          callback(null, messages);
+        })
+        .catch(function (err) {
           callback(err, null);
-        } else {
-          callback(null, results);
-        }
-       });
+          db.dbConnectionSequelize.close();
+        });
 
     }, // a function which produces all the messages
 
     post: function (message, callback) {
-      // get user id (calling users.get)
-      module.exports.users.get(function(err, usersResult) {
-        if (err) {
+      db.users.sync()
+        .then(function () {
+          return db.users.findOrCreate({ where: { username: message.username } });
+        })
+        .then(function ([user, created]) {
+          console.log(user.get().id);
+          var userId = user.get().id;
+          return userId;
+        })
+        .then(function (userId) {
+          return db.messages.create({
+            message: message.message,
+            room_name: message.roomname,
+            user_id: userId
+          })
+        })
+        .then(function (result) {
+          console.log('message POST successful');
+          callback(null, result);
+        })
+        .catch(function (err) {
           callback(err, null);
-        } else {
-            var findUserId = function(user) {
-              for (var i = 0; i < usersResult.length; i++) {
-                if (usersResult[i].username === user) {
-                  return usersResult[i].id;
-                }
-              }
-            };
-            var queryString = "INSERT INTO messages(message, room_name, user_id) VALUES (?, ?, ?)";
-            var queryArgs = [message.message, message.roomname, findUserId(message.username)];
-            db.dbConnection.query(queryString, queryArgs, function(err, results) {
-              if (err) {
-                callback(err, null);
-              } else {
-                callback(null, results);
-              }
-            });
-
-        } // a function which can be used to insert a message into the database
-      });
+        })
     }
   },
 
   users: {
     // Ditto as above.
     get: function (callback) {
-      var queryString = "SELECT * FROM users";
-      db.dbConnection.query(queryString, function(err, results) {
-        if (err) {
-          console.log(err);
+      db.users.sync()
+        .then(function () {
+          return db.users.findAll({});
+        })
+        .then(function (users) {
+          callback(null, users);
+        })
+        .catch(function (err) {
           callback(err, null);
-        } else {
-          console.log(results);
-          callback(null, results);
-        }
-      });
-
+          db.dbConnectionSequelize.close();
+        });
     },
     post: function (user, callback) {
-      var queryString = "INSERT IGNORE INTO users(username) VALUES (?)";
-      var queryArgs = [user];
-      db.dbConnection.query(queryString, queryArgs, function(err, results) {
-        if (err) {
+      db.users.sync()
+        .then(function () {
+          return db.users.upsert({ username: user });
+        })
+        .then(function (result) {
+          callback(null, result);
+        })
+        .catch(function (err) {
           callback(err, null);
-        } else {
-          callback(null, results);
-        }
-      });
-
+          db.dbConnectionSequelize.close();
+        });
     }
   }
 };

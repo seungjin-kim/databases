@@ -3,7 +3,7 @@ var models = require('../models');
 module.exports = {
   messages: {
     get: function (req, res) {
-      models.messages.get(function(err, messages) {
+      models.messages.get(function (err, messages) {
         if (err) {
           res.writeHead(404, {
             "access-control-allow-origin": "*",
@@ -28,11 +28,11 @@ module.exports = {
       console.log(message);
       // get the user from body
       var userFromMsg = message.username;
-      models.users.post(userFromMsg, function(err, users) {
+      models.users.post(userFromMsg, function (err, users) {
         if (err) {
           console.log(err);
         } else {
-          models.messages.post(message, function(err) {
+          models.messages.post(message, function (err) {
             if (err) {
               res.writeHead(404, {
                 "access-control-allow-origin": "*",
@@ -53,7 +53,7 @@ module.exports = {
   users: {
     // Ditto as above
     get: function (req, res) {
-      models.users.get(function(err, users) {
+      models.users.get(function (err, users) {
         if (err) {
           res.writeHead(404, {
             "access-control-allow-origin": "*",
@@ -76,7 +76,7 @@ module.exports = {
     post: function (req, res) {
       console.log(req.body);
       var username = req.body.username;
-      models.users.post(username, function(err) {
+      models.users.post(username, function (err) {
         if (err) {
           res.writeHead(404, {
             "access-control-allow-origin": "*",
