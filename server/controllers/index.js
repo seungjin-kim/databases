@@ -26,19 +26,27 @@ module.exports = {
     post: function (req, res) {
       var message = req.body;
       console.log(message);
-      models.messages.post(message, function(err) {
+      // get the user from body
+      var userFromMsg = message.username;
+      models.users.post(userFromMsg, function(err, users) {
         if (err) {
-          res.writeHead(404, {
-            "access-control-allow-origin": "*",
-            "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "access-control-allow-headers": "content-type, accept",
-            "access-control-max-age": 10
+          console.log(err);
+        } else {
+          models.messages.post(message, function(err) {
+            if (err) {
+              res.writeHead(404, {
+                "access-control-allow-origin": "*",
+                "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "access-control-allow-headers": "content-type, accept",
+                "access-control-max-age": 10
+              });
+              res.end();
+            } else {
+              res.send('message post success');
+            }
           });
-          res.end();
         }
-        return res.send('message post success');
-      });
-
+      })
     } // a function which handles posting a message to the database
   },
 

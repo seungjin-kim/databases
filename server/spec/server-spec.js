@@ -87,4 +87,65 @@ describe('Persistent Node Chat Server', function() {
       });
     });
   });
+
+  it('Should not insert duplicate users', function(done) {
+    // insert a user using post, twice
+    // get users list, the user posted should appear just once
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/users',
+      json: {username: 'nonduplicateduser'}
+    }, function(err, response, body) {
+      if (err) {
+        console.log(error);
+      } else {
+        request({
+          method: 'POST',
+          uri: 'http://127.0.0.1:3000/classes/users',
+          json: {username: 'nonduplicateduser'}
+        }, function (err, response, body) {
+          if (err) {
+            console.log(err);
+          } else {
+            request('http://127.0.0.1:3000/classes/users', function(err, response, body) {
+              var users = JSON.parse(body);
+              var count = 0;
+              for (var i = 0; i < users.length; i++) {
+                if (users[i].username === 'nonduplicateduser') {
+                  count++;
+                }
+              }
+              expect(count).to.equal(1);
+              done();
+            })
+          }
+        })
+      }
+    });
+  });
+
+  it('Should create a message if the user does not exist', function(done) {
+    var username = 'testuser' + Math.floor(Math.random() * 1000);
+    var messageText = `test message from ${username}`;
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: username,
+        message: messageText,
+        roomname: 'random'
+      }
+    }, function() {
+      var queryString = 'SELECT * from messages WHERE message = ?';
+      var queryArgs = [messageText];
+      dbConnection.query(queryString, queryArgs, function(err, results) {
+        if (err) {
+          console.log(err);
+        } else {
+          expect(results.length).to.equal(1);
+          done();
+        }
+      });
+    });
+  });
 });
