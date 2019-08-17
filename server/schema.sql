@@ -36,6 +36,9 @@ CREATE TABLE `messages` (
 -- ---
 
 ALTER TABLE `messages` ADD FOREIGN KEY (user_id) REFERENCES `users` (`id`);
+ALTER TABLE `users` ADD UNIQUE INDEX (`id`);
+ALTER TABLE `users` ADD UNIQUE INDEX (`username`);
+
 
 -- ---
 -- Table Properties

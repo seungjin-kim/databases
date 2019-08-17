@@ -32,14 +32,14 @@ describe('Persistent Node Chat Server', function() {
     request({
       method: 'POST',
       uri: 'http://127.0.0.1:3000/classes/users',
-      json: { username: 'Valjean' }
+      json: { username: 'testuser10' }
     }, function () {
       // Post a message to the node chat server:
       request({
         method: 'POST',
         uri: 'http://127.0.0.1:3000/classes/messages',
         json: {
-          username: 'Valjean',
+          username: 'testuser10',
           message: 'In mercy\'s name, three days is all I need.',
           roomname: 'Hello'
         }
@@ -49,8 +49,8 @@ describe('Persistent Node Chat Server', function() {
 
         // TODO: You might have to change this test to get all the data from
         // your message table, since this is schema-dependent.
-        var queryString = 'SELECT * FROM messages WHERE `id`= (SELECT `id` FROM users WHERE name = ?)';
-        var queryArgs = ['Valjean'];
+        var queryString = 'SELECT * FROM messages WHERE `user_id`= (SELECT `id` FROM users WHERE username = ?)';
+        var queryArgs = ['testuser10'];
 
         dbConnection.query(queryString, queryArgs, function(err, results) {
           // Should have one result:

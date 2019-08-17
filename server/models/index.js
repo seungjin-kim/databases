@@ -12,11 +12,12 @@ module.exports = {
           callback(null, results);
         }
        });
+
     }, // a function which produces all the messages
 
     post: function (message, callback) {
       // get user id (calling users.get)
-      this.users.get(function(err, usersResult) {
+      module.exports.users.get(function(err, usersResult) {
         if (err) {
           callback(err, null);
         } else {
@@ -36,6 +37,7 @@ module.exports = {
                 callback(null, results);
               }
             });
+
         } // a function which can be used to insert a message into the database
       });
     }
@@ -47,14 +49,17 @@ module.exports = {
       var queryString = "SELECT * FROM users";
       db.dbConnection.query(queryString, function(err, results) {
         if (err) {
+          console.log(err);
           callback(err, null);
         } else {
+          console.log(results);
           callback(null, results);
         }
       });
+
     },
     post: function (user, callback) {
-      var queryString = "INSERT INTO users(username) VALUES (?)";
+      var queryString = "INSERT IGNORE INTO users(username) VALUES (?)";
       var queryArgs = [user];
       db.dbConnection.query(queryString, queryArgs, function(err, results) {
         if (err) {
